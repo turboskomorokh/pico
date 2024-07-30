@@ -1,0 +1,5 @@
+name: libastral
+version: 0.1
+arch: ham64
+depends: 
+conflicts: 
