@@ -50,7 +50,7 @@ int pkg_install(char *argument) {
     return EXIT_SUCCESS;
   }
 
-  pkg_solve_dependencies(pkg);
+  pkg_satisfy_dependencies(pkg);
   if (pkg->state & PICO_PKG_DEPS_FAIL) {
     free_pkg(pkg);
     return EXIT_SUCCESS;

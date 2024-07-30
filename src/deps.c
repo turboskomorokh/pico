@@ -14,7 +14,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-int pkg_solve_dependencies(pkg_t *pkg) {
+int pkg_satisfy_dependencies(pkg_t *pkg) {
   char *ds, *d, *d_failed;
 
   ds = xstrdup(pkg->depends);
