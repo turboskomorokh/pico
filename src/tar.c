@@ -6,6 +6,7 @@
 
 #include "out.h"
 #include "xfunc.h"
+#include "env.h"
 
 #define TAR_SUCCESS 1
 #define TAR_FAILURE 0
@@ -102,7 +103,7 @@ char *tar_extract_source(FILE *afp) {
     return buf;
 
   while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
-    const char *aep = archive_entry_pathname(ae);
+    const char *aep = string_compose("/%s", archive_entry_pathname(ae));
     if (!strcmp(aep, "pico-package")) {
       archive_read_data_skip(a);
       continue;

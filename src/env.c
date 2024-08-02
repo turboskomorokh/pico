@@ -1,9 +1,14 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "out.h"
 #include "xfunc.h"
+
+int is_root() {
+    return getuid() == 0;
+}
 
 char *read_file(FILE *fp) {
     long f_size;
