@@ -1,5 +1,5 @@
-name: libastral
-version: 0.1
-arch: ham64
+name: libfoo
+version: 1.0
+arch: x86_64
 depends: 
-conflicts: 
+conflicts: libbar

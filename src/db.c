@@ -81,9 +81,9 @@ pkg_t *db_get(char *pkg_name) {
 
   FILE *dbifp = fopen(dbi, "r");
   if (dbifp == NULL) {
-    perror_msg("Failed to open file: %s", dbi);
     free(dbi);
     free(dbl);
+    db_pkg->state |= PICO_PKG_DB_FAIL;
     return db_pkg;
   }
   FILE *dblfp = xfopen(dbl, "r");

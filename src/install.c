@@ -10,16 +10,11 @@
 int pkg_install(char *argument) {
   pkg_t *pkg = new_pkg();
   if (pkg == NULL) {
-    perror("Failed to create package");
+    perror("Failed to allocate pkg structure");
     return EXIT_FAILURE;
   }
 
   FILE *fp = xfopen(argument, "r");
-  if (fp == NULL) {
-    perror("Failed to open file");
-    free_pkg(pkg);
-    return EXIT_FAILURE;
-  }
 
   pkg->info = tar_read_file_buf(fp, "pico-package");
   if (pkg->info == NULL) {
@@ -68,7 +63,7 @@ int pkg_install(char *argument) {
   fclose(fp);
 
   db_add(pkg);
-
+  printf("Installed %s:%s (%s)\n", pkg->name, pkg->arch, pkg->version);
   free_pkg(pkg);
 
   return EXIT_SUCCESS;

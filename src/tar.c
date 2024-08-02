@@ -7,7 +7,6 @@
 #include "out.h"
 #include "xfunc.h"
 
-#define TAR_BUF_SIZE 512
 #define TAR_SUCCESS 1
 #define TAR_FAILURE 0
 
@@ -20,7 +19,7 @@ int tar_init(struct archive **a, FILE *ap) {
   }
 
   archive_read_support_format_tar(*a);
-  archive_read_support_filter_xz(*a);
+  archive_read_support_filter_gzip(*a);
 
   int r = archive_read_open_FILE(*a, ap);
   if (r != ARCHIVE_OK) {
@@ -53,14 +52,14 @@ int tar_check_pkg(FILE *ap) {
   return good == TAR_SUCCESS;
 }
 
-char *tar_read_file_buf(FILE *ap, const char *fp) {
+char *tar_read_file_buf(FILE *afp, const char *fp) {
   struct archive *a;
   struct archive_entry *ae;
   int r;
   ssize_t r_size, f_size;
   char *buf = NULL;
 
-  if (tar_init(&a, ap) == TAR_FAILURE)
+  if (tar_init(&a, afp) == TAR_FAILURE)
     return TAR_FAILURE;
 
   while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
@@ -84,11 +83,11 @@ char *tar_read_file_buf(FILE *ap, const char *fp) {
   buf[f_size] = '\0';
 
   archive_read_free(a);
-
+  xfseek(afp, 0, SEEK_SET);
   return buf;
 }
 
-char *tar_extract_source(FILE *ap) {
+char *tar_extract_source(FILE *afp) {
   struct archive *a;
   struct archive_entry *ae;
   int r;
@@ -97,7 +96,7 @@ char *tar_extract_source(FILE *ap) {
   buf = xmalloc(1);
   buf[0] = '\0';
 
-  r = tar_init(&a, ap);
+  r = tar_init(&a, afp);
 
   if (r == TAR_FAILURE)
     return buf;
@@ -113,10 +112,11 @@ char *tar_extract_source(FILE *ap) {
       error_msg("Unable to extract %s: %s\n", aep, archive_error_string(a));
       continue;
     }
-    buf = xrealloc(buf, strlen(aep) + 2);
+    buf = xrealloc(buf, strlen(buf) + strlen(aep) + 2);
     strcat(buf, aep);
     strcat(buf, "\n");
   }
   buf[strlen(buf) + 1] = '\0';
+  xfseek(afp, 0, SEEK_SET);
   return buf;
 }

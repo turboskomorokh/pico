@@ -105,9 +105,6 @@ int pkg_check_arch(pkg_t *pkg) {
     perror("pkg_check_arch(): uname");
     return EXIT_FAILURE;
   }
-
-  printf("%s\n", s_info.machine);
-
   if (strcmp(s_info.machine, pkg->arch)) {
     pkg->state |= PICO_PKG_ARCH_FAIL;
     return EXIT_FAILURE;
@@ -151,6 +148,23 @@ int pkg_remove_source(FILE *fp) {
         perror_msg("Can't remove %s", l);
     }
   }
+  xfseek(fp, 0, SEEK_SET);
+  while (fgets(l, PATH_MAX, fp)) {
+    l[strcspn(l, "\n")] = '\0';
+
+    if (stat(l, &st)) {
+      if (errno == ENOENT)
+        continue;
+      perror_msg("Can't stat %s", l);
+      continue;
+    }
+
+    if (S_ISLNK(st.st_mode)) {
+      if (remove(l) != EXIT_SUCCESS)
+        perror_msg("Can't remove %s", l);
+    }
+  }
+  xfseek(fp, 0, SEEK_SET);
 
   free(l);
   return EXIT_SUCCESS;
