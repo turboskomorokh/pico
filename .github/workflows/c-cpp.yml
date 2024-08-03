@@ -2,18 +2,20 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: install libarchive, libacl and gzip
-    - run: sudo apt install libarchive-dev libacl-dev gzip
-    - name: make
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y libarchive-dev libacl-dev gzip
+
+    - name: Build project
       run: make
