@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y libarchive-dev libacl-dev gzip
+      run: sudo apt-get update && sudo apt-get install -y libarchive-dev libacl1-dev gzip
 
     - name: Build project
       run: make
