@@ -40,15 +40,20 @@ int db_add(pkg_t *pkg) {
 
 int db_remove(pkg_t *pkg) {
   int r = EXIT_SUCCESS;
-  char *dbi = string_compose(CONFIG_DB_DIR "/%s/info", pkg->name);
-  char *dbl = string_compose(CONFIG_DB_DIR "/%s/list", pkg->name);
+  char *dbp = string_compose(CONFIG_DB_DIR "/%s", pkg->name);
+  char *dbi = string_compose("%s/info", dbp);
+  char *dbl = string_compose("%s/list", dbp);
 
-  if (remove(dbi) != EXIT_SUCCESS || remove(dbl) != EXIT_SUCCESS) {
+  if (remove(dbi) != EXIT_SUCCESS 
+      || remove(dbl) != EXIT_SUCCESS
+      || rmdir(dbp) != EXIT_SUCCESS) {
     perror_msg("db_remove() %s", pkg->name);
     r = EXIT_FAILURE;
   }
+
   free(dbi);
   free(dbl);
+  free(dbp);
 
   return r;
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "out.h"
 #include "xfunc.h"
 #include "env.h"
@@ -103,11 +104,13 @@ char *tar_extract_source(FILE *afp) {
     return buf;
 
   while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
-    const char *aep = string_compose("/%s", archive_entry_pathname(ae));
-    if (!strcmp(aep, "pico-package")) {
+    char *aep = string_compose(CONFIG_PREFIX"%s", archive_entry_pathname(ae));
+    printf("Extracting %s to %s\n", archive_entry_pathname(ae), aep);
+    if (!strcmp(aep, "/pico-package")) {
       archive_read_data_skip(a);
       continue;
     }
+    archive_entry_set_pathname(ae, aep);
     r = archive_read_extract(a, ae, 0);
     if (r != ARCHIVE_OK) {
       error_msg("Unable to extract %s: %s\n", aep, archive_error_string(a));
@@ -116,6 +119,7 @@ char *tar_extract_source(FILE *afp) {
     buf = xrealloc(buf, strlen(buf) + strlen(aep) + 2);
     strcat(buf, aep);
     strcat(buf, "\n");
+    free(aep);
   }
   buf[strlen(buf) + 1] = '\0';
   xfseek(afp, 0, SEEK_SET);
