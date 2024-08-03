@@ -14,9 +14,9 @@ conflicts: musl
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 
 pkg_t *new_pkg() {
   pkg_t *pkg = xmalloc(sizeof(pkg_t));
@@ -126,7 +126,7 @@ int pkg_remove_source(FILE *fp) {
       continue;
     }
 
-    if (S_ISREG(st.st_mode)) {
+    if (S_ISREG(st.st_mode) || S_ISLNK(st.st_mode)) {
       if (remove(l) != EXIT_SUCCESS)
         perror_msg("Can't remove %s", l);
     }
@@ -145,22 +145,6 @@ int pkg_remove_source(FILE *fp) {
 
     if (S_ISDIR(st.st_mode)) {
       if (rmdir(l) != EXIT_SUCCESS && errno != ENOTEMPTY)
-        perror_msg("Can't remove %s", l);
-    }
-  }
-  xfseek(fp, 0, SEEK_SET);
-  while (fgets(l, PATH_MAX, fp)) {
-    l[strcspn(l, "\n")] = '\0';
-
-    if (stat(l, &st)) {
-      if (errno == ENOENT)
-        continue;
-      perror_msg("Can't stat %s", l);
-      continue;
-    }
-
-    if (S_ISLNK(st.st_mode)) {
-      if (remove(l) != EXIT_SUCCESS)
         perror_msg("Can't remove %s", l);
     }
   }
