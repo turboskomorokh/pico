@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: install libarchive, libacl and gzip
+    - run: sudo apt install libarchive-dev libacl-dev gzip
     - name: make
       run: make
